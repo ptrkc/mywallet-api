@@ -19,7 +19,7 @@ export function signInValidation(object) {
 
 export function signUpValidation(object) {
     const schema = joi.object({
-        name: joi.string().trim().required(),
+        name: joi.string().trim().replace(/[<>]/g, "").required(),
         email: joi.string().trim().pattern(emailRegEx).required(),
         password: joi.string().required(),
     });
@@ -27,7 +27,7 @@ export function signUpValidation(object) {
     return error
         ? false
         : {
-              name: object.name.trim(),
+              name: object.name.replace(/[<>]/g, "").trim(),
               email: object.email.trim(),
               password: object.password,
           };
@@ -35,7 +35,7 @@ export function signUpValidation(object) {
 
 export function newTransactionValidation(object) {
     const schema = joi.object({
-        description: joi.string().trim().required(),
+        description: joi.string().replace(/[<>]/g, "").trim().required(),
         value: joi.number().integer().min(1).required(),
         type: joi
             .string()
@@ -46,7 +46,7 @@ export function newTransactionValidation(object) {
     return error
         ? false
         : {
-              description: object.description.trim(),
+              description: object.description.replace(/[<>]/g, "").trim(),
               value: object.value,
               type: object.type,
           };
