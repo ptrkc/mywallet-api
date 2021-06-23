@@ -1,4 +1,5 @@
 import db from "../dbConfig.js";
+import { newTransactionValidation } from "../functions/validations.js";
 
 export async function getTransactions(req, res) {
     try {
@@ -6,8 +7,7 @@ export async function getTransactions(req, res) {
             res.sendStatus(401);
             return;
         }
-        const authorization = req.headers["authorization"];
-        const token = authorization.replace("Bearer ", "");
+        const token = req.headers["authorization"].replace("Bearer ", "");
         const session = await db.query(
             `SELECT * FROM sessions WHERE token = $1`,
             [token]
@@ -18,7 +18,7 @@ export async function getTransactions(req, res) {
         }
         const transactions = await db.query(
             `SELECT transactions.id, transactions.description, transactions.value, transactions.type, transactions.date 
-            FROM transactions WHERE "userId" = $1`,
+            FROM transactions WHERE "userId" = $1 ORDER BY id DESC`,
             [session.rows[0]["userId"]]
         );
         res.send(transactions.rows);
@@ -34,8 +34,7 @@ export async function postTransaction(req, res) {
             res.sendStatus(401);
             return;
         }
-        const authorization = req.headers["authorization"];
-        const token = authorization.replace("Bearer ", "");
+        const token = req.headers["authorization"].replace("Bearer ", "");
         const session = await db.query(
             `SELECT * FROM sessions WHERE token = $1`,
             [token]
@@ -44,7 +43,12 @@ export async function postTransaction(req, res) {
             res.sendStatus(401);
             return;
         }
-        const { description, value, type } = req.body;
+        const newTransaction = newTransactionValidation(req.body);
+        if (!newTransaction) {
+            res.sendStatus(400);
+            return;
+        }
+        const { description, value, type } = newTransaction;
         await db.query(
             `INSERT INTO transactions ("userId", description, value, type, date) VALUES ($1, $2, $3, $4, NOW());`,
             [session.rows[0]["userId"], description, value, type]
