@@ -40,6 +40,21 @@ export async function postSignIn(req, res) {
     }
 }
 
+export async function postSignOut(req, res) {
+    try {
+        if (!req.headers["authorization"]) {
+            res.sendStatus(401);
+            return;
+        }
+        const token = req.headers["authorization"].replace("Bearer ", "");
+        await db.query(`DELETE FROM sessions WHERE token = $1`, [token]);
+        res.send();
+    } catch (e) {
+        console.log(e);
+        res.sendStatus(500);
+    }
+}
+
 export async function postSignUp(req, res) {
     try {
         const newUser = signUpValidation(req.body);
