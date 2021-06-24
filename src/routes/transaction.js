@@ -21,7 +21,16 @@ export async function getTransactions(req, res) {
             FROM transactions WHERE "userId" = $1 ORDER BY id DESC`,
             [session.rows[0]["userId"]]
         );
-        res.send(transactions.rows);
+        const balance = await db.query(
+            `SELECT SUM(CASE WHEN type = 'income' THEN COALESCE(value,0) ELSE COALESCE(-value,0) END) AS balance 
+            FROM transactions
+            WHERE transactions."userId" = $1;`,
+            [session.rows[0]["userId"]]
+        );
+        res.send({
+            balance: parseInt(balance.rows[0].balance),
+            transactions: transactions.rows,
+        });
     } catch (e) {
         res.sendStatus(500);
         console.log(e);
