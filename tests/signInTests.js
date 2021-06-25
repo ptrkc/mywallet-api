@@ -7,11 +7,18 @@ export default function signInTests() {
             email: "jj2000@gmail.com",
             password: "JuV3N@lLlLll!@#$%^&*(",
         };
-        await supertest(app)
+        const res = await supertest(app)
             .post("/sign-in")
             .send(body)
             .expect(200)
             .expect("Content-Type", /json/);
+
+        expect(res.body).toEqual(
+            expect.objectContaining({
+                name: expect.any(String),
+                token: expect.any(String),
+            })
+        );
     });
 
     it("returns 400 for bad email", async () => {

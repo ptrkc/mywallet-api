@@ -3,10 +3,17 @@ import supertest from "supertest";
 
 export function getTransactionsTests(token) {
     it("returns 200 for valid params", async () => {
-        const test = await supertest(app)
+        const res = await supertest(app)
             .get("/transactions")
             .set("Authorization", `Bearer ${token}`)
             .expect(200);
+
+        expect(res.body).toEqual(
+            expect.objectContaining({
+                balance: expect.any(Number),
+                transactions: expect.any(Array),
+            })
+        );
     });
 
     it("returns 401 for no/wrong token", async () => {

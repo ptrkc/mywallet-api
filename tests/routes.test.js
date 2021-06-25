@@ -1,4 +1,3 @@
-import supertest from "supertest";
 import db from "../src/dbConfig.js";
 import signUpTests from "./signUpTests.js";
 import signInTests from "./signInTests.js";
