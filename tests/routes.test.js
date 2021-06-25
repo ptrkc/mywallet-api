@@ -2,6 +2,9 @@ import app from "../src/app.js";
 import supertest from "supertest";
 import db from "../src/dbConfig.js";
 
+let token;
+let config;
+
 beforeAll(async () => {
     await db.query(
         `DELETE FROM users; DELETE FROM sessions; DELETE FROM transactions;`
@@ -14,8 +17,7 @@ afterAll(() => {
 
 describe("GET /test", () => {
     it("returns status 200", async () => {
-        const result = await supertest(app).get("/test");
-        expect(result.status).toEqual(200);
+        await supertest(app).get("/test").expect(200);
     });
 });
 
@@ -26,8 +28,7 @@ describe("POST /sign-up", () => {
             email: "jj2000@gmail.com",
             password: "JuV3N@lLlLll!@#$%^&*(",
         };
-        const result = await supertest(app).post("/sign-up").send(body);
-        expect(result.status).toEqual(201);
+        await supertest(app).post("/sign-up").send(body).expect(201);
     });
 
     it("returns 400 for bad name", async () => {
@@ -36,8 +37,7 @@ describe("POST /sign-up", () => {
             email: "jj2000@gmail.com",
             password: "JuV3N@lLlLll!@#$%^&*(",
         };
-        const result = await supertest(app).post("/sign-up").send(body);
-        expect(result.status).toEqual(400);
+        await supertest(app).post("/sign-up").send(body).expect(400);
     });
 
     it("returns 400 for empty name", async () => {
@@ -46,8 +46,7 @@ describe("POST /sign-up", () => {
             email: "jj2000@gmail.com",
             password: "JuV3N@lLlLll!@#$%^&*(",
         };
-        const result = await supertest(app).post("/sign-up").send(body);
-        expect(result.status).toEqual(400);
+        await supertest(app).post("/sign-up").send(body).expect(400);
     });
 
     it("returns 400 for empty email", async () => {
@@ -56,8 +55,7 @@ describe("POST /sign-up", () => {
             email: "",
             password: "JuV3N@lLlLll!@#$%^&*(",
         };
-        const result = await supertest(app).post("/sign-up").send(body);
-        expect(result.status).toEqual(400);
+        await supertest(app).post("/sign-up").send(body).expect(400);
     });
 
     it("returns 400 for bad email", async () => {
@@ -66,8 +64,7 @@ describe("POST /sign-up", () => {
             email: "juvenal@juvenal",
             password: "JuV3N@lLlLll!@#$%^&*(",
         };
-        const result = await supertest(app).post("/sign-up").send(body);
-        expect(result.status).toEqual(400);
+        await supertest(app).post("/sign-up").send(body).expect(400);
     });
 
     it("returns 400 for empty password", async () => {
@@ -76,8 +73,7 @@ describe("POST /sign-up", () => {
             email: "juvenal@juvenal.com",
             password: "",
         };
-        const result = await supertest(app).post("/sign-up").send(body);
-        expect(result.status).toEqual(400);
+        await supertest(app).post("/sign-up").send(body).expect(400);
     });
 
     it("returns 409 for email in use", async () => {
@@ -86,12 +82,68 @@ describe("POST /sign-up", () => {
             email: "jj2000@gmail.com",
             password: "Senhaaaaa1234",
         };
-        const result = await supertest(app).post("/sign-up").send(body);
-        expect(result.status).toEqual(409);
+        await supertest(app).post("/sign-up").send(body).expect(409);
     });
 
     it("returns 400 for no body", async () => {
-        const result = await supertest(app).post("/sign-up");
-        expect(result.status).toEqual(400);
+        await supertest(app).post("/sign-up").expect(400);
+    });
+});
+
+describe("POST /sign-in", () => {
+    it("returns 200 for valid params", async () => {
+        const body = {
+            email: "jj2000@gmail.com",
+            password: "JuV3N@lLlLll!@#$%^&*(",
+        };
+        await supertest(app)
+            .post("/sign-in")
+            .send(body)
+            .expect(200)
+            .expect("Content-Type", /json/);
+    });
+
+    it("returns 400 for bad email", async () => {
+        const body = {
+            email: "  asd@asdasd ",
+            password: "JuV3N@lLlLll!@#$%^&*(",
+        };
+        await supertest(app).post("/sign-in").send(body).expect(400);
+    });
+
+    it("returns 400 for empty email", async () => {
+        const body = {
+            email: "     ",
+            password: "JuV3N@lLlLll!@#$%^&*(",
+        };
+        await supertest(app).post("/sign-in").send(body).expect(400);
+    });
+
+    it("returns 400 for empty password", async () => {
+        const body = {
+            email: "jj2000@gmail.com",
+            password: "",
+        };
+        await supertest(app).post("/sign-in").send(body).expect(400);
+    });
+
+    it("returns 401 for wrong password", async () => {
+        const body = {
+            email: "jj2000@gmail.com",
+            password: "asdfasdfasdfasdf",
+        };
+        await supertest(app).post("/sign-in").send(body).expect(401);
+    });
+
+    it("returns 401 for wrong/inexistent email", async () => {
+        const body = {
+            email: "thisemail@isnotinthedatabase.com",
+            password: "thiscanbeanything",
+        };
+        await supertest(app).post("/sign-in").send(body).expect(401);
+    });
+
+    it("returns 400 for no body", async () => {
+        await supertest(app).post("/sign-in").expect(400);
     });
 });
