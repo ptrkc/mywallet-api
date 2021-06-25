@@ -36,7 +36,7 @@ export function signUpValidation(object) {
 export function newTransactionValidation(object) {
     const schema = joi.object({
         description: joi.string().replace(/[<>]/g, "").trim().required(),
-        value: joi.number().integer().min(1).required(),
+        value: joi.number().integer().min(1).max(999999999).required(),
         type: joi
             .string()
             .pattern(/^(expense|income)$/)
