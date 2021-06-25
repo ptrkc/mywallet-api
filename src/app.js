@@ -17,8 +17,4 @@ app.get("/transactions", (req, res) => getTransactions(req, res));
 
 app.post("/transaction", (req, res) => postTransaction(req, res));
 
-app.get("/test", (req, res) => {
-    res.send();
-});
-
 export default app;
