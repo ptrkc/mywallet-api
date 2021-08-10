@@ -21,7 +21,7 @@ This is the back-end to the MyWallet web app. More information can be found at:
 psql -c 'create database mywallet'
 ```
 
-3. Dump the SQL to create the tables
+3. Restore the SQL dump to create the tables
 
 ```bash
 psql mywallet < dump.sql
